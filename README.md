@@ -6,9 +6,8 @@
 
 If you are already using the [Sopel IRC bot](https://sopel.chat/), installation is simple: put the included files in your Modules directory and rename the card files such as "cah-black-cards_example.txt" to "cah-black-cards.txt". The next time you load your bot, these files will be included and should be ready to go. For "humanity", you will also want to edit the line near the top of the file to select a room for it to be played in.
 
-## Commands
 
-**cah Commands**
+## cah Commands
 
 **.hate**: The main command to return a random combination of black and white cards. If you're lucky, it will even be funny.
 
@@ -21,7 +20,7 @@ If you are already using the [Sopel IRC bot](https://sopel.chat/), installation 
 **.cahload**: Reload the cards from the .txt files and return the number of black and white cards.
 
 
-**humanity Commands**
+## humanity Commands
 
 **.cah**: Starts the game. You can append a number to the end to set the points required for victory. Example: ___.cah 5___
 

@@ -11,7 +11,7 @@ If you are already using the [Sopel IRC bot](https://sopel.chat/), installation 
 
 **.hate**: The main command to return a random combination of black and white cards. If you're lucky, it will even be funny.
 
-**.bc**: Provide your own black card to be filled with random white cards, using underscores for the blanks. Example: _.bc I used to like \_ until I discovered \_._ Note: cah-black-cards_example.txt has information on additional blank formatting tricks to return cards with capitalization or titlecase.
+**.bc**: Provide your own black card to be filled with random white cards, using underscores for the blanks. Example: .bc I used to like \_ until I discovered \_. Note: cah-black-cards_example.txt has information on additional blank formatting tricks to return cards with capitalization or titlecase.
 
 **.wc**: Provide your own white card or cards to be plugged into a random black card. Additional cards are separated by a #. Example: ___.wc your mom___ Example 2: ___.wc your mom # your cat___.
 

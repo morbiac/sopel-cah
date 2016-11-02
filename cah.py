@@ -75,13 +75,20 @@ def transform_white(whitecard, modifier):
 
 
 def load_cards(*args):
-    """Grab white and black cards from text files."""
+    """Grab white and black cards from text files in their respective directories."""
     global white, black
-    whitefile = os.path.join(os.path.dirname(__file__), 'cah-white-cards.txt')
-    blackfile = os.path.join(os.path.dirname(__file__), 'cah-black-cards.txt')
-    with open(whitefile, 'r', encoding='utf-8') as f:
-        white = tuple(x for x in f.read().splitlines() if not x.startswith('#'))
-    with open(blackfile, 'r', encoding='utf-8') as f:
-        black = tuple(x for x in f.read().splitlines() if not x.startswith('#'))
+    white, black = (), ()
+    # Get paths to card folders
+    blackdir = os.path.join(os.path.dirname(__file__), 'blackcards')
+    whitedir = os.path.join(os.path.dirname(__file__), 'whitecards')
+    # Add each file's contents to the card list tuples. Files should be utf8 .txt files.
+    for file in os.listdir(blackdir):
+        if file.endswith('.txt'):
+            with open(os.path.join(blackdir, file), 'r', encoding='utf-8') as f:
+                black += tuple(x for x in f.read().splitlines() if not x.startswith('#'))
+    for file in os.listdir(whitedir):
+        if file.endswith('.txt'):
+            with open(os.path.join(whitedir, file), 'r', encoding='utf-8') as f:
+                white += tuple(x for x in f.read().splitlines() if not x.startswith('#'))
 
 load_cards()

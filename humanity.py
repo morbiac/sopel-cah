@@ -18,15 +18,22 @@ def setup(bot):
     load_cards()
 
 
-def load_cards():
-    """Grab white and black cards from text files."""
+def load_cards(*args):
+    """Grab white and black cards from text files in their respective directories."""
     global white, black
-    whitefile = os.path.join(os.path.dirname(__file__), 'cah-white-cards.txt')
-    blackfile = os.path.join(os.path.dirname(__file__), 'cah-black-cards.txt')
-    with open(whitefile, 'r', encoding='utf-8') as f:
-        white = tuple(x for x in f.read().splitlines() if not x.startswith('#'))
-    with open(blackfile, 'r', encoding='utf-8') as f:
-        black = tuple(x for x in f.read().splitlines() if not x.startswith('#'))
+    white, black = (), ()
+    # Get paths to card folders
+    blackdir = os.path.join(os.path.dirname(__file__), 'blackcards')
+    whitedir = os.path.join(os.path.dirname(__file__), 'whitecards')
+    # Add each file's contents to the card list tuples. Files should be utf8 .txt files.
+    for file in os.listdir(blackdir):
+        if file.endswith('.txt'):
+            with open(os.path.join(blackdir, file), 'r', encoding='utf-8') as f:
+                black += tuple(x for x in f.read().splitlines() if not x.startswith('#'))
+    for file in os.listdir(whitedir):
+        if file.endswith('.txt'):
+            with open(os.path.join(whitedir, file), 'r', encoding='utf-8') as f:
+                white += tuple(x for x in f.read().splitlines() if not x.startswith('#'))
 
 
 def fill_black(card, whites=None):
@@ -137,7 +144,7 @@ class Humanity(object):
             bot.msg(CHANNEL, "{} has started a new game! .cahjoin to join. Use .rando to invite Rando to the party, "
                              "and .cahstart to begin the game.".format(starter))
             if trigger.group(2):
-                if int(trigger.group(2)) in range(3,9):
+                if int(trigger.group(2)) in range(3, 10):
                     self.winning_score = int(trigger.group(2))
                 else:
                     return
@@ -147,6 +154,8 @@ class Humanity(object):
         """Add a player to the game, assigning them a hand object and position in the order list."""
         if not self.game_on:
             bot.msg(CHANNEL, "There is no game in progress. Use .cah to begin a new game.")
+        elif self.allowPlaying:
+            bot.msg(CHANNEL, "Please try again after the current round has ended.")
         elif trigger.nick not in self.players:
             self.players[trigger.nick] = Hand()
             self.playerOrder.append(trigger.nick)
@@ -241,7 +250,7 @@ class Humanity(object):
         bot.msg(CHANNEL, self.current_black_card)
         # Display enumerated entries
         self.cardstovote = {k: v for k, v in self.submittedCards.items() if v}
-        self.cardlist = list(enumerate(self.cardstovote.values(), 1))
+        self.cardlist = list(enumerate(sorted(self.cardstovote.values()), 1))
         bot.msg(CHANNEL, "The entries are: {}".format(self.pretty_card_list(bot, self.cardlist)))
         self.allowVoting = True
         bot.msg(CHANNEL, self.playerOrder[self.currentPlayer] + ", please .cahvote for the entry you like most")
@@ -281,6 +290,7 @@ class Humanity(object):
         """
         bot.msg(CHANNEL, "{} wins with: {}".format(name, fill_black(self.current_black_card, winner)))
         # Maybe save winning card combo to a file?
+        self.current_black_card = ''
         self.playerScores[name] += 1
         self.get_scores(bot)
         self.allowVoting = False
@@ -313,6 +323,7 @@ class Humanity(object):
         if self.game_on and trigger.nick in self.players:
             del self.players[trigger.nick]
             self.playerOrder.remove(trigger.nick)
+            self.get_numplayers(bot)
             bot.msg(CHANNEL, trigger.nick + " has left the game.")
         elif not self.game_on:
             bot.msg(CHANNEL, "There is no game in progress.")
@@ -339,9 +350,11 @@ class Humanity(object):
 load_cards()
 humanity = Humanity()
 
+
 @commands('cah')
 @example('.cah or .cah 5')
 def cah(bot, trigger):
+    """Open a new game. Trigger can be followed with a number of points required for victory."""
     if not humanity.game_on:
         humanity.__init__()
     humanity.game_open(bot, trigger.nick, trigger)
@@ -349,6 +362,7 @@ def cah(bot, trigger):
 
 @commands('cahjoin')
 def cahjoin(bot, trigger):
+    """Join an open game."""
     humanity.cahjoin(bot, trigger)
 
 
@@ -357,6 +371,15 @@ def cahjoin(bot, trigger):
 def cahplay(bot, trigger):
     if humanity.game_on:
         humanity.players[trigger.nick].play_card(bot, trigger)
+
+
+@commands('cahrepeat', 'cr')
+def cahrepeat(bot, trigger):
+    """Repeat the black card for the current round."""
+    try:
+        bot.msg(CHANNEL, humanity.current_black_card)
+    except AttributeError:
+        pass
 
 
 @commands('cahvote', 'cv')
